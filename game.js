@@ -334,67 +334,70 @@ let clouds = [];
 // 添加建筑物数组
 let buildings = [];
 
-// 初始化游戏
-function init() {
+// 添加触摸控制变量
+let touchStartY = 0;
+let touchStartX = 0;
+let isTouching = false;
+let touchThreshold = 20;
+
+// 添加触摸事件监听
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    touchStartY = touch.clientY;
+    touchStartX = touch.clientX;
+    isTouching = true;
+    controls.shoot = true;
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (!isTouching) return;
+    
+    const touch = e.touches[0];
+    const deltaY = touch.clientY - touchStartY;
+    
+    if (Math.abs(deltaY) > touchThreshold) {
+        if (deltaY < 0) {
+            controls.up = true;
+            controls.down = false;
+        } else {
+            controls.up = false;
+            controls.down = true;
+        }
+        touchStartY = touch.clientY; // 更新起始位置，使移动更流畅
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    isTouching = false;
+    controls.up = false;
+    controls.down = false;
+    controls.shoot = false;
+}, { passive: false });
+
+// 添加屏幕自适应
+function resizeCanvas() {
+    const container = document.querySelector('.container');
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    
+    if (windowWidth <= 768) { // 移动设备
+        canvas.width = windowWidth;
+        canvas.height = windowHeight;
+    } else { // PC设备
+        canvas.width = 320;
+        canvas.height = 480;
+    }
+    
+    // 重新初始化小鸟位置
+    bird.x = canvas.width * 0.2;
     bird.y = canvas.height / 2;
-    bird.velocity = 0;
-    bird.shootCooldown = 0;
-    monsters = [];
-    bullets = [];
-    score = 0;
-    gameRunning = true;
-    gameOverElement.classList.add('hidden');
-    
-    // 初始化云朵
-    clouds = Array.from({length: 5}, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * (canvas.height / 2),
-        size: 30 + Math.random() * 40,
-        speed: 0.2 + Math.random() * 0.3
-    }));
-    
-    // 初始化建筑物
-    const buildingCount = 6;
-    const buildingWidth = canvas.width / buildingCount;
-    buildings = Array.from({length: buildingCount}, (_, i) => ({
-        x: i * buildingWidth,
-        width: buildingWidth * 0.8,
-        height: 100 + Math.random() * 200,
-        windows: Math.floor(3 + Math.random() * 4),
-        floors: Math.floor(4 + Math.random() * 4)
-    }));
-    
-    updateScore();
 }
 
-function updateScore() {
-    scoreElement.textContent = `得分: ${score}`;
-}
-
-// 修改创建怪物函数，添加生命值
-function createMonster() {
-    const selectedType = monsterTypes[Math.floor(Math.random() * monsterTypes.length)];
-    
-    monsters.push({
-        x: canvas.width,
-        y: Math.random() * (canvas.height - selectedType.size * 2) + selectedType.size,
-        ...selectedType,
-        health: selectedType.maxHealth  // 初始生命值等于最大生命值
-    });
-}
-
-// 添加射击函数
-function shoot() {
-    if (!gameRunning || bird.shootCooldown > 0) return;
-    
-    bullets.push({
-        x: bird.x + bird.size/2,
-        y: bird.y,
-        trail: []  // 子弹尾迹
-    });
-    
-    bird.shootCooldown = bulletConfig.cooldown;
-}
+// 添加窗口大小变化监听
+window.addEventListener('resize', resizeCanvas);
 
 // 添加键盘事件监听
 document.addEventListener('keydown', (e) => {
@@ -428,6 +431,69 @@ document.addEventListener('keyup', (e) => {
             break;
     }
 });
+
+// 修改初始化函数
+function init() {
+    resizeCanvas();
+    bird.y = canvas.height / 2;
+    bird.x = canvas.width * 0.2;
+    bird.velocity = 0;
+    bird.shootCooldown = 0;
+    monsters = [];
+    bullets = [];
+    score = 0;
+    gameRunning = true;
+    gameOverElement.classList.add('hidden');
+    updateScore();
+    
+    // 初始化云朵
+    clouds = Array.from({length: 5}, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * (canvas.height / 2),
+        size: 30 + Math.random() * 40,
+        speed: 0.2 + Math.random() * 0.3
+    }));
+    
+    // 初始化建筑物
+    const buildingCount = 6;
+    const buildingWidth = canvas.width / buildingCount;
+    buildings = Array.from({length: buildingCount}, (_, i) => ({
+        x: i * buildingWidth,
+        width: buildingWidth * 0.8,
+        height: 100 + Math.random() * 200,
+        windows: Math.floor(3 + Math.random() * 4),
+        floors: Math.floor(4 + Math.random() * 4)
+    }));
+}
+
+function updateScore() {
+    scoreElement.textContent = `得分: ${score}`;
+}
+
+// 修改创建怪物函数，添加生命值
+function createMonster() {
+    const selectedType = monsterTypes[Math.floor(Math.random() * monsterTypes.length)];
+    
+    monsters.push({
+        x: canvas.width,
+        y: Math.random() * (canvas.height - selectedType.size * 2) + selectedType.size,
+        ...selectedType,
+        health: selectedType.maxHealth  // 初始生命值等于最大生命值
+    });
+}
+
+// 添加射击函数
+function shoot() {
+    if (!gameRunning || bird.shootCooldown > 0) return;
+    
+    bullets.push({
+        x: bird.x + bird.size/2,
+        y: bird.y,
+        trail: []  // 子弹尾迹
+    });
+    
+    bird.shootCooldown = bulletConfig.cooldown;
+}
 
 // 更新云朵位置
 function updateClouds() {
