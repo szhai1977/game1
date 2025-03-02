@@ -35,327 +35,280 @@ let gameRunning = true;
 // 修改怪物类型配置，删除麻雀
 const monsterTypes = [
     {
-        name: '鹰',
-        color: '#4B4B4B',
-        size: 32,
-        speed: 0.3,
-        points: 20,
-        spawnChance: 0.4,  // 增加生成概率以补充麻雀的缺失
-        maxHealth: 4,
-        drawShape: (ctx, x, y, size) => {
-            ctx.save();
-            const time = Date.now() / 150;
-            const wingAngle = Math.sin(time) * 0.3;
-            
-            // 身体
-            const bodyGradient = ctx.createLinearGradient(x - size, y - size/2, x + size, y + size/2);
-            bodyGradient.addColorStop(0, '#2F4F4F');
-            bodyGradient.addColorStop(0.5, '#4B4B4B');
-            bodyGradient.addColorStop(1, '#363636');
-            ctx.fillStyle = bodyGradient;
-            ctx.beginPath();
-            ctx.ellipse(x, y, size * 0.5, size * 0.3, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // 翅膀
-            const wingGradient = ctx.createLinearGradient(0, -size, 0, size);
-            wingGradient.addColorStop(0, '#4B4B4B');
-            wingGradient.addColorStop(0.5, '#696969');
-            wingGradient.addColorStop(1, '#2F4F4F');
-            
-            // 左翼
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(wingAngle);
-            ctx.fillStyle = wingGradient;
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.quadraticCurveTo(size * 0.8, -size * 0.6, size, 0);
-            ctx.quadraticCurveTo(size * 0.8, size * 0.6, 0, 0);
-            ctx.fill();
-            ctx.restore();
-
-            // 头部
-            ctx.fillStyle = '#2F4F4F';
-            ctx.beginPath();
-            ctx.arc(x - size * 0.4, y - size * 0.1, size * 0.25, 0, Math.PI * 2);
-            ctx.fill();
-
-            // 眼睛
-            const eyeGradient = ctx.createRadialGradient(
-                x - size * 0.6, y - size * 0.15, 0,
-                x - size * 0.6, y - size * 0.15, size * 0.08
-            );
-            eyeGradient.addColorStop(0, '#FFD700');
-            eyeGradient.addColorStop(1, '#DAA520');
-            ctx.fillStyle = eyeGradient;
-            ctx.beginPath();
-            ctx.arc(x - size * 0.6, y - size * 0.15, size * 0.08, 0, Math.PI * 2);
-            ctx.fill();
-
-            // 钩喙
-            ctx.fillStyle = '#2F2F2F';
-            ctx.beginPath();
-            ctx.moveTo(x - size * 0.65, y - size * 0.1);
-            ctx.quadraticCurveTo(x - size * 0.75, y, x - size * 0.6, y + size * 0.05);
-            ctx.quadraticCurveTo(x - size * 0.65, y - size * 0.05, x - size * 0.55, y - size * 0.1);
-            ctx.fill();
-
-            ctx.restore();
-        }
-    },
-    {
-        name: '白鸽',
-        color: '#FFFFFF',
-        size: 20,
-        speed: 0.45,
-        points: 15,
+        name: '直升机',
+        color: '#FF4500',
+        size: 35,
+        speed: 0.4,
+        points: 25,
         spawnChance: 0.3,
         maxHealth: 3,
         drawShape: (ctx, x, y, size) => {
             ctx.save();
-            const time = Date.now() / 120;
-            const wingAngle = Math.sin(time) * 0.4;
-            const bodyBob = Math.sin(time * 2) * 1.5;
-
-            // 身体
+            const time = Date.now() / 50;  // 螺旋桨快速旋转
+            
+            // 机身
             const bodyGradient = ctx.createLinearGradient(x - size, y, x + size, y);
-            bodyGradient.addColorStop(0, '#FFFFFF');
-            bodyGradient.addColorStop(0.5, '#F0F0F0');
-            bodyGradient.addColorStop(1, '#FFFFFF');
+            bodyGradient.addColorStop(0, '#FF4500');
+            bodyGradient.addColorStop(0.5, '#FF6347');
+            bodyGradient.addColorStop(1, '#FF4500');
             ctx.fillStyle = bodyGradient;
             ctx.beginPath();
-            ctx.ellipse(x, y + bodyBob, size * 0.55, size * 0.3, 0, 0, Math.PI * 2);
+            ctx.ellipse(x, y, size * 0.8, size * 0.3, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // 翅膀
-            const wingGradient = ctx.createLinearGradient(0, -size * 0.5, 0, size * 0.5);
-            wingGradient.addColorStop(0, '#FFFFFF');
-            wingGradient.addColorStop(1, '#E0E0E0');
-
-            // 左翼
-            ctx.save();
-            ctx.translate(x, y + bodyBob);
-            ctx.rotate(wingAngle);
-            ctx.fillStyle = wingGradient;
+            // 驾驶舱
+            ctx.fillStyle = 'rgba(135, 206, 250, 0.7)';
             ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.quadraticCurveTo(-size * 0.8, -size * 0.4, -size * 0.3, 0);
-            ctx.quadraticCurveTo(-size * 0.8, size * 0.4, 0, 0);
-            ctx.fill();
-            ctx.restore();
-
-            // 头部
-            ctx.fillStyle = '#FFFFFF';
-            ctx.beginPath();
-            ctx.arc(x - size * 0.35, y + bodyBob - size * 0.1, size * 0.2, 0, Math.PI * 2);
+            ctx.ellipse(x - size * 0.2, y - size * 0.1, size * 0.3, size * 0.2, Math.PI / 6, 0, Math.PI * 2);
             ctx.fill();
 
-            // 眼睛
-            ctx.fillStyle = '#000000';
+            // 尾部
+            ctx.fillStyle = '#FF4500';
             ctx.beginPath();
-            ctx.arc(x - size * 0.45, y + bodyBob - size * 0.15, size * 0.05, 0, Math.PI * 2);
+            ctx.moveTo(x + size * 0.3, y);
+            ctx.lineTo(x + size * 0.8, y - size * 0.2);
+            ctx.lineTo(x + size * 0.8, y + size * 0.2);
+            ctx.closePath();
             ctx.fill();
 
-            // 嘴
-            ctx.fillStyle = '#FFB6C1';
-            ctx.beginPath();
-            ctx.moveTo(x - size * 0.55, y + bodyBob - size * 0.1);
-            ctx.lineTo(x - size * 0.45, y + bodyBob - size * 0.13);
-            ctx.lineTo(x - size * 0.45, y + bodyBob - size * 0.07);
-            ctx.fill();
+            // 主螺旋桨
+            ctx.strokeStyle = '#A0A0A0';
+            ctx.lineWidth = 3;
+            for (let i = 0; i < 4; i++) {
+                ctx.save();
+                ctx.translate(x, y - size * 0.4);
+                ctx.rotate(time + (i * Math.PI / 2));
+                ctx.beginPath();
+                ctx.moveTo(-size * 0.8, 0);
+                ctx.lineTo(size * 0.8, 0);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // 尾部螺旋桨
+            for (let i = 0; i < 2; i++) {
+                ctx.save();
+                ctx.translate(x + size * 0.8, y);
+                ctx.rotate(time * 2 + (i * Math.PI));
+                ctx.beginPath();
+                ctx.moveTo(0, -size * 0.2);
+                ctx.lineTo(0, size * 0.2);
+                ctx.stroke();
+                ctx.restore();
+            }
 
             ctx.restore();
         }
     },
     {
-        name: '金丝雀',
-        color: '#FFD700',
-        size: 18,
-        speed: 0.5,
+        name: '热气球',
+        color: '#FF69B4',
+        size: 40,
+        speed: 0.2,
         points: 15,
         spawnChance: 0.2,
         maxHealth: 2,
         drawShape: (ctx, x, y, size) => {
             ctx.save();
-            const time = Date.now() / 90;
-            const wingAngle = Math.sin(time) * 0.6;
-            const bodyBob = Math.sin(time * 2) * 1.5;
+            const time = Date.now() / 200;
+            const floatY = Math.sin(time) * 3;  // 漂浮效果
 
-            // 身体
-            const bodyGradient = ctx.createLinearGradient(x - size, y, x + size, y);
-            bodyGradient.addColorStop(0, '#FFD700');
-            bodyGradient.addColorStop(0.5, '#FFFF00');
-            bodyGradient.addColorStop(1, '#FFD700');
-            ctx.fillStyle = bodyGradient;
+            // 气球部分
+            const balloonGradient = ctx.createRadialGradient(
+                x, y + floatY, 0,
+                x, y + floatY, size
+            );
+            balloonGradient.addColorStop(0, '#FF69B4');
+            balloonGradient.addColorStop(0.7, '#FF1493');
+            balloonGradient.addColorStop(1, '#C71585');
+
+            ctx.fillStyle = balloonGradient;
             ctx.beginPath();
-            ctx.ellipse(x, y + bodyBob, size * 0.55, size * 0.35, 0, 0, Math.PI * 2);
+            ctx.moveTo(x, y + floatY - size);
+            ctx.quadraticCurveTo(
+                x + size, y + floatY - size * 0.5,
+                x + size * 0.5, y + floatY
+            );
+            ctx.quadraticCurveTo(
+                x + size * 0.5, y + floatY + size * 0.5,
+                x, y + floatY + size * 0.7
+            );
+            ctx.quadraticCurveTo(
+                x - size * 0.5, y + floatY + size * 0.5,
+                x - size * 0.5, y + floatY
+            );
+            ctx.quadraticCurveTo(
+                x - size, y + floatY - size * 0.5,
+                x, y + floatY - size
+            );
             ctx.fill();
 
-            // 装饰性羽毛
-            ctx.fillStyle = '#FFA500';
-            for (let i = 0; i < 3; i++) {
+            // 装饰条纹
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 2;
+            for (let i = 1; i <= 3; i++) {
                 ctx.beginPath();
-                ctx.ellipse(
-                    x - size * 0.2 + i * size * 0.2,
-                    y + bodyBob - size * 0.2,
-                    size * 0.1,
-                    size * 0.15,
-                    Math.PI / 4,
-                    0,
-                    Math.PI * 2
-                );
-                ctx.fill();
+                ctx.ellipse(x, y + floatY, size * 0.8 * (i/3), size * 0.6 * (i/3), 0, 0, Math.PI * 2);
+                ctx.stroke();
             }
 
-            // 翅膀动画
-            const drawWing = (isLeft) => {
-                ctx.save();
-                ctx.translate(x, y + bodyBob);
-                ctx.rotate(isLeft ? wingAngle : -wingAngle);
-                if (!isLeft) ctx.scale(-1, 1);
+            // 篮子
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(x - size * 0.3, y + floatY + size * 0.8, size * 0.6, size * 0.3);
 
-                const wingGradient = ctx.createLinearGradient(0, -size * 0.5, 0, size * 0.5);
-                wingGradient.addColorStop(0, '#FFD700');
-                wingGradient.addColorStop(1, '#DAA520');
-                ctx.fillStyle = wingGradient;
-
-                ctx.beginPath();
-                ctx.moveTo(0, 0);
-                ctx.quadraticCurveTo(-size * 0.6, -size * 0.4, -size * 0.2, 0);
-                ctx.quadraticCurveTo(-size * 0.6, size * 0.4, 0, 0);
-                ctx.fill();
-                ctx.restore();
-            };
-
-            drawWing(true);
-            drawWing(false);
-
-            // 头部
-            ctx.fillStyle = '#FFD700';
+            // 绳子
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(x - size * 0.3, y + bodyBob - size * 0.1, size * 0.2, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.moveTo(x - size * 0.4, y + floatY + size * 0.6);
+            ctx.lineTo(x - size * 0.3, y + floatY + size * 0.8);
+            ctx.moveTo(x + size * 0.4, y + floatY + size * 0.6);
+            ctx.lineTo(x + size * 0.3, y + floatY + size * 0.8);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+    },
+    {
+        name: '机器人',
+        color: '#4169E1',
+        size: 30,
+        speed: 0.3,
+        points: 20,
+        spawnChance: 0.25,
+        maxHealth: 4,
+        drawShape: (ctx, x, y, size) => {
+            ctx.save();
+            const time = Date.now() / 150;
+            const hover = Math.sin(time) * 2;
+
+            // 机器人头部
+            const headGradient = ctx.createLinearGradient(x - size/2, y, x + size/2, y);
+            headGradient.addColorStop(0, '#4169E1');
+            headGradient.addColorStop(0.5, '#1E90FF');
+            headGradient.addColorStop(1, '#4169E1');
+            
+            ctx.fillStyle = headGradient;
+            ctx.fillRect(x - size * 0.3, y - size * 0.3 + hover, size * 0.6, size * 0.4);
 
             // 眼睛
-            ctx.fillStyle = 'black';
+            ctx.fillStyle = '#FF0000';
             ctx.beginPath();
-            ctx.arc(x - size * 0.4, y + bodyBob - size * 0.15, size * 0.05, 0, Math.PI * 2);
+            ctx.arc(x - size * 0.1, y - size * 0.1 + hover, size * 0.08, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + size * 0.1, y - size * 0.1 + hover, size * 0.08, 0, Math.PI * 2);
             ctx.fill();
 
-            // 小嘴
-            ctx.fillStyle = '#FF8C00';
+            // 天线
+            ctx.strokeStyle = '#4169E1';
+            ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(x - size * 0.5, y + bodyBob - size * 0.1);
-            ctx.lineTo(x - size * 0.4, y + bodyBob - size * 0.15);
-            ctx.lineTo(x - size * 0.4, y + bodyBob - size * 0.05);
+            ctx.moveTo(x - size * 0.2, y - size * 0.3 + hover);
+            ctx.lineTo(x - size * 0.3, y - size * 0.5 + hover);
+            ctx.moveTo(x + size * 0.2, y - size * 0.3 + hover);
+            ctx.lineTo(x + size * 0.3, y - size * 0.5 + hover);
+            ctx.stroke();
+
+            // 身体
+            ctx.fillStyle = '#4169E1';
+            ctx.fillRect(x - size * 0.4, y + size * 0.1 + hover, size * 0.8, size * 0.5);
+
+            // 机械臂
+            const armAngle = Math.sin(time) * 0.2;
+            ctx.save();
+            ctx.translate(x - size * 0.4, y + size * 0.2 + hover);
+            ctx.rotate(armAngle);
+            ctx.fillRect(-size * 0.3, 0, size * 0.3, size * 0.1);
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(x + size * 0.4, y + size * 0.2 + hover);
+            ctx.rotate(-armAngle);
+            ctx.fillRect(0, 0, size * 0.3, size * 0.1);
+            ctx.restore();
+
+            // 推进器
+            const thrusterGlow = ctx.createRadialGradient(
+                x, y + size * 0.6 + hover, 0,
+                x, y + size * 0.6 + hover, size * 0.3
+            );
+            thrusterGlow.addColorStop(0, 'rgba(0, 255, 255, 0.8)');
+            thrusterGlow.addColorStop(0.5, 'rgba(0, 255, 255, 0.3)');
+            thrusterGlow.addColorStop(1, 'rgba(0, 255, 255, 0)');
+
+            ctx.fillStyle = thrusterGlow;
+            ctx.beginPath();
+            ctx.arc(x, y + size * 0.6 + hover, size * 0.3, 0, Math.PI * 2);
             ctx.fill();
 
             ctx.restore();
         }
     },
     {
-        name: '孔雀',
-        color: '#4169E1',
-        size: 40,
-        speed: 0.25,
+        name: '邪恶UFO',
+        color: '#9370DB',
+        size: 45,
+        speed: 0.35,
         points: 30,
-        spawnChance: 0.1,
+        spawnChance: 0.15,
         maxHealth: 5,
         drawShape: (ctx, x, y, size) => {
             ctx.save();
-            const time = Date.now() / 200;
-            const tailAngle = Math.sin(time) * 0.1;
-            
-            // 身体
-            const bodyGradient = ctx.createLinearGradient(x - size, y, x + size, y);
-            bodyGradient.addColorStop(0, '#4169E1');
-            bodyGradient.addColorStop(0.5, '#1E90FF');
-            bodyGradient.addColorStop(1, '#4169E1');
-            ctx.fillStyle = bodyGradient;
+            const time = Date.now() / 180;
+            const hover = Math.sin(time) * 3;
+
+            // UFO主体
+            const ufoGradient = ctx.createLinearGradient(x, y - size/2, x, y + size/2);
+            ufoGradient.addColorStop(0, '#9370DB');
+            ufoGradient.addColorStop(0.5, '#8A2BE2');
+            ufoGradient.addColorStop(1, '#9370DB');
+
+            ctx.fillStyle = ufoGradient;
             ctx.beginPath();
-            ctx.ellipse(x, y, size * 0.6, size * 0.4, 0, 0, Math.PI * 2);
+            ctx.ellipse(x, y + hover, size * 0.8, size * 0.3, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // 孔雀尾巴 - 调整位置到后方
-            const featherColors = ['#4169E1', '#32CD32', '#FFD700', '#9370DB'];
-            ctx.save();
-            ctx.translate(x + size * 0.3, y);  // 改为加号，移到后方
-            ctx.rotate(tailAngle + Math.PI);   // 添加 Math.PI 旋转180度
-            
-            for (let i = 0; i < 7; i++) {
-                const angle = (i - 3) * Math.PI / 12;
-                const color = featherColors[i % featherColors.length];
-                
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.moveTo(0, 0);
-                ctx.quadraticCurveTo(
-                    -size * Math.cos(angle) * 1.2,
-                    size * Math.sin(angle) * 0.8,
-                    -size * Math.cos(angle) * 1.5,
-                    size * Math.sin(angle)
-                );
-                ctx.quadraticCurveTo(
-                    -size * Math.cos(angle) * 1.2,
-                    size * Math.sin(angle) * 1.2,
-                    0, 0
-                );
-                ctx.fill();
+            // 舱室
+            const cockpitGradient = ctx.createRadialGradient(
+                x, y + hover, 0,
+                x, y + hover, size * 0.4
+            );
+            cockpitGradient.addColorStop(0, 'rgba(144, 238, 144, 0.6)');
+            cockpitGradient.addColorStop(0.7, 'rgba(144, 238, 144, 0.3)');
+            cockpitGradient.addColorStop(1, 'rgba(144, 238, 144, 0)');
 
-                // 羽毛眼
-                const eyeX = -size * Math.cos(angle) * 1.2;
-                const eyeY = size * Math.sin(angle) * 0.9;
-                const eyeGradient = ctx.createRadialGradient(
-                    eyeX, eyeY, 0,
-                    eyeX, eyeY, size * 0.15
-                );
-                eyeGradient.addColorStop(0, '#4169E1');
-                eyeGradient.addColorStop(0.5, '#32CD32');
-                eyeGradient.addColorStop(1, '#FFD700');
+            ctx.fillStyle = cockpitGradient;
+            ctx.beginPath();
+            ctx.arc(x, y + hover, size * 0.4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 光束效果
+            const beamGradient = ctx.createLinearGradient(x, y + hover, x, y + hover + size);
+            beamGradient.addColorStop(0, 'rgba(144, 238, 144, 0.4)');
+            beamGradient.addColorStop(1, 'rgba(144, 238, 144, 0)');
+
+            ctx.fillStyle = beamGradient;
+            ctx.beginPath();
+            ctx.moveTo(x - size * 0.3, y + hover);
+            ctx.lineTo(x + size * 0.3, y + hover);
+            ctx.lineTo(x + size * 0.15, y + hover + size);
+            ctx.lineTo(x - size * 0.15, y + hover + size);
+            ctx.closePath();
+            ctx.fill();
+
+            // 闪烁的灯
+            const lights = 6;
+            for (let i = 0; i < lights; i++) {
+                const angle = (i / lights) * Math.PI * 2 + time;
+                const lightX = x + Math.cos(angle) * size * 0.7;
+                const lightY = y + hover + Math.sin(angle) * size * 0.25;
                 
-                ctx.fillStyle = eyeGradient;
+                ctx.fillStyle = `hsl(${(time * 50 + i * 50) % 360}, 100%, 50%)`;
                 ctx.beginPath();
-                ctx.arc(eyeX, eyeY, size * 0.15, 0, Math.PI * 2);
+                ctx.arc(lightX, lightY, size * 0.06, 0, Math.PI * 2);
                 ctx.fill();
             }
-            ctx.restore();
-
-            // 头部和冠冕 - 调整到前方
-            ctx.fillStyle = '#4169E1';
-            ctx.beginPath();
-            ctx.arc(x - size * 0.4, y - size * 0.1, size * 0.25, 0, Math.PI * 2);  // 改为减号
-            ctx.fill();
-
-            // 冠冕 - 调整位置
-            ctx.fillStyle = '#32CD32';
-            for (let i = 0; i < 3; i++) {
-                ctx.beginPath();
-                ctx.ellipse(
-                    x - size * 0.4 + Math.cos(i * Math.PI/3) * size * 0.1,  // 改为减号
-                    y - size * 0.3 + Math.sin(i * Math.PI/3) * size * 0.1,
-                    size * 0.08,
-                    size * 0.15,
-                    i * Math.PI/3,
-                    0,
-                    Math.PI * 2
-                );
-                ctx.fill();
-            }
-
-            // 眼睛 - 调整位置
-            ctx.fillStyle = 'black';
-            ctx.beginPath();
-            ctx.arc(x - size * 0.5, y - size * 0.15, size * 0.05, 0, Math.PI * 2);  // 改为减号
-            ctx.fill();
-
-            // 喙 - 调整位置和方向
-            ctx.fillStyle = '#FFD700';
-            ctx.beginPath();
-            ctx.moveTo(x - size * 0.6, y - size * 0.1);  // 改为减号
-            ctx.lineTo(x - size * 0.7, y - size * 0.05);  // 改为减号
-            ctx.lineTo(x - size * 0.6, y);  // 改为减号
-            ctx.fill();
 
             ctx.restore();
         }
@@ -375,6 +328,12 @@ const bulletConfig = {
 // 添加子弹数组
 let bullets = [];
 
+// 添加云朵数组
+let clouds = [];
+
+// 添加建筑物数组
+let buildings = [];
+
 // 初始化游戏
 function init() {
     bird.y = canvas.height / 2;
@@ -385,6 +344,26 @@ function init() {
     score = 0;
     gameRunning = true;
     gameOverElement.classList.add('hidden');
+    
+    // 初始化云朵
+    clouds = Array.from({length: 5}, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * (canvas.height / 2),
+        size: 30 + Math.random() * 40,
+        speed: 0.2 + Math.random() * 0.3
+    }));
+    
+    // 初始化建筑物
+    const buildingCount = 6;
+    const buildingWidth = canvas.width / buildingCount;
+    buildings = Array.from({length: buildingCount}, (_, i) => ({
+        x: i * buildingWidth,
+        width: buildingWidth * 0.8,
+        height: 100 + Math.random() * 200,
+        windows: Math.floor(3 + Math.random() * 4),
+        floors: Math.floor(4 + Math.random() * 4)
+    }));
+    
     updateScore();
 }
 
@@ -449,6 +428,61 @@ document.addEventListener('keyup', (e) => {
             break;
     }
 });
+
+// 更新云朵位置
+function updateClouds() {
+    clouds.forEach(cloud => {
+        cloud.x -= cloud.speed;
+        if (cloud.x + cloud.size < 0) {
+            cloud.x = canvas.width + cloud.size;
+            cloud.y = Math.random() * (canvas.height / 2);
+        }
+    });
+}
+
+// 绘制云朵
+function drawCloud(x, y, size) {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.beginPath();
+    ctx.arc(x, y, size * 0.5, 0, Math.PI * 2);
+    ctx.arc(x + size * 0.4, y - size * 0.2, size * 0.4, 0, Math.PI * 2);
+    ctx.arc(x + size * 0.4, y + size * 0.2, size * 0.4, 0, Math.PI * 2);
+    ctx.arc(x + size * 0.7, y, size * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+// 绘制建筑物
+function drawBuilding(building) {
+    // 建筑物主体
+    const gradient = ctx.createLinearGradient(building.x, 0, building.x + building.width, 0);
+    gradient.addColorStop(0, '#4A4A4A');
+    gradient.addColorStop(0.5, '#5A5A5A');
+    gradient.addColorStop(1, '#4A4A4A');
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(building.x, canvas.height - building.height, building.width, building.height);
+    
+    // 窗户
+    const windowWidth = building.width / (building.windows + 1);
+    const windowHeight = building.height / (building.floors + 1);
+    const windowSize = Math.min(windowWidth, windowHeight) * 0.7;
+    
+    for (let floor = 1; floor <= building.floors; floor++) {
+        for (let w = 1; w <= building.windows; w++) {
+            const windowX = building.x + w * (building.width / (building.windows + 1)) - windowSize/2;
+            const windowY = canvas.height - building.height + floor * (building.height / (building.floors + 1)) - windowSize/2;
+            
+            // 随机决定窗户是否亮着
+            if (Math.random() < 0.7) {
+                ctx.fillStyle = 'rgba(255, 255, 150, 0.8)';
+            } else {
+                ctx.fillStyle = 'rgba(150, 150, 150, 0.5)';
+            }
+            
+            ctx.fillRect(windowX, windowY, windowSize, windowSize);
+        }
+    }
+}
 
 // 更新游戏状态
 function update() {
@@ -535,6 +569,9 @@ function update() {
             bullets.splice(i, 1);
         }
     }
+
+    // 更新云朵位置
+    updateClouds();
 }
 
 // 绘制游戏画面
@@ -542,13 +579,23 @@ function draw() {
     // 清空画布
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 绘制天空背景
+    // 绘制渐变天空
     const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    skyGradient.addColorStop(0, '#87CEEB');    // 天空蓝
-    skyGradient.addColorStop(0.5, '#B0E2FF');  // 淡蓝色
-    skyGradient.addColorStop(1, '#E0FFFF');    // 非常淡的蓝色
+    skyGradient.addColorStop(0, '#1E90FF');    // 深蓝色
+    skyGradient.addColorStop(0.5, '#87CEEB');  // 天蓝色
+    skyGradient.addColorStop(1, '#B0E0E6');    // 粉蓝色
     ctx.fillStyle = skyGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 绘制云朵
+    clouds.forEach(cloud => {
+        drawCloud(cloud.x, cloud.y, cloud.size);
+    });
+
+    // 绘制建筑物
+    buildings.forEach(building => {
+        drawBuilding(building);
+    });
 
     // 绘制小鸟
     ctx.save();
