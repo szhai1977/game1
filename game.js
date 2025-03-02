@@ -550,147 +550,108 @@ function draw() {
     ctx.fillStyle = skyGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 绘制飞船
+    // 绘制小鸟
     ctx.save();
     ctx.translate(bird.x, bird.y);
-    ctx.rotate(bird.rotation);  // 直接使用计算好的旋转角度
+    ctx.rotate(bird.rotation);
 
-    // 引擎火焰效果
-    bird.engineFlame += 0.2;
-    const flameSize = Math.sin(bird.engineFlame) * 10;
-    const flameGradient = ctx.createLinearGradient(
-        -bird.size - 20, 0,
-        -bird.size, 0
-    );
-    flameGradient.addColorStop(0, 'rgba(0, 191, 255, 0)');
-    flameGradient.addColorStop(0.5, 'rgba(0, 255, 255, 0.8)');
-    flameGradient.addColorStop(1, 'rgba(0, 191, 255, 0.4)');
+    // 身体
+    const bodyGradient = ctx.createLinearGradient(-bird.size/2, 0, bird.size/2, 0);
+    bodyGradient.addColorStop(0, '#FFB6C1');  // 粉色
+    bodyGradient.addColorStop(0.5, '#FFC0CB');
+    bodyGradient.addColorStop(1, '#FFB6C1');
     
-    // 主引擎火焰
-    ctx.fillStyle = flameGradient;
-    ctx.beginPath();
-    ctx.moveTo(-bird.size, -8);
-    ctx.lineTo(-bird.size - 25 - flameSize, 0);
-    ctx.lineTo(-bird.size, 8);
-    ctx.closePath();
-    ctx.fill();
-
-    // 机翼引擎火焰
-    const smallFlameSize = flameSize * 0.6;
-    ctx.beginPath();
-    ctx.moveTo(-bird.size * 0.7, -bird.size * 0.6);
-    ctx.lineTo(-bird.size * 0.9 - smallFlameSize, -bird.size * 0.6);
-    ctx.lineTo(-bird.size * 0.7, -bird.size * 0.5);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(-bird.size * 0.7, bird.size * 0.6);
-    ctx.lineTo(-bird.size * 0.9 - smallFlameSize, bird.size * 0.6);
-    ctx.lineTo(-bird.size * 0.7, bird.size * 0.5);
-    ctx.closePath();
-    ctx.fill();
-
-    // 主机翼
-    const wingGradient = ctx.createLinearGradient(0, -bird.size, 0, bird.size);
-    wingGradient.addColorStop(0, '#D0D0D0');
-    wingGradient.addColorStop(0.5, '#F8F8F8');
-    wingGradient.addColorStop(1, '#D0D0D0');
-    ctx.fillStyle = wingGradient;
-
-    // 上机翼
-    ctx.beginPath();
-    ctx.moveTo(-bird.size * 0.3, -bird.size * 0.3);
-    ctx.lineTo(bird.size * 0.3, -bird.size * 0.5);
-    ctx.lineTo(bird.size * 0.5, -bird.size * 0.4);
-    ctx.lineTo(-bird.size * 0.4, -bird.size * 0.2);
-    ctx.closePath();
-    ctx.fill();
-
-    // 下机翼
-    ctx.beginPath();
-    ctx.moveTo(-bird.size * 0.3, bird.size * 0.3);
-    ctx.lineTo(bird.size * 0.3, bird.size * 0.5);
-    ctx.lineTo(bird.size * 0.5, bird.size * 0.4);
-    ctx.lineTo(-bird.size * 0.4, bird.size * 0.2);
-    ctx.closePath();
-    ctx.fill();
-
-    // 机翼装饰线
-    ctx.strokeStyle = '#A0A0A0';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(-bird.size * 0.3, -bird.size * 0.3);
-    ctx.lineTo(bird.size * 0.3, -bird.size * 0.5);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(-bird.size * 0.3, bird.size * 0.3);
-    ctx.lineTo(bird.size * 0.3, bird.size * 0.5);
-    ctx.stroke();
-
-    // 飞船主体
-    const bodyGradient = ctx.createLinearGradient(0, -bird.size/2, 0, bird.size/2);
-    bodyGradient.addColorStop(0, '#C0C0C0');   // 亮银色
-    bodyGradient.addColorStop(0.3, '#FFFFFF');  // 白色
-    bodyGradient.addColorStop(0.7, '#C0C0C0');
-    bodyGradient.addColorStop(1, '#A0A0A0');   // 暗银色
-
     ctx.fillStyle = bodyGradient;
     ctx.beginPath();
-    ctx.ellipse(0, 0, bird.size, bird.size/3, 0, 0, Math.PI * 2);  // 椭圆形主体
+    ctx.ellipse(0, 0, bird.size * 0.8, bird.size * 0.6, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // 驾驶舱穹顶
-    const cockpitGradient = ctx.createRadialGradient(
-        bird.size/3, -bird.size/4,
-        0,
-        bird.size/3, -bird.size/4,
-        bird.size/2
-    );
-    cockpitGradient.addColorStop(0, 'rgba(135, 206, 250, 0.9)');  // 天蓝色
-    cockpitGradient.addColorStop(0.5, 'rgba(135, 206, 250, 0.5)');
-    cockpitGradient.addColorStop(1, 'rgba(135, 206, 250, 0.2)');
+    // 翅膀
+    const wingAngle = Math.sin(Date.now() / 100) * 0.5; // 翅膀扇动动画
+    const wingGradient = ctx.createLinearGradient(0, -bird.size, 0, bird.size);
+    wingGradient.addColorStop(0, '#FFA07A');  // 浅鲑鱼色
+    wingGradient.addColorStop(1, '#FF8C69');  // 深鲑鱼色
 
-    ctx.fillStyle = cockpitGradient;
+    // 左翼
+    ctx.save();
+    ctx.translate(-bird.size * 0.3, 0);
+    ctx.rotate(wingAngle);
+    ctx.fillStyle = wingGradient;
     ctx.beginPath();
-    ctx.ellipse(bird.size/3, -bird.size/4, bird.size/3, bird.size/4, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 0, bird.size * 0.5, bird.size * 0.3, Math.PI / 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // 右翼
+    ctx.save();
+    ctx.translate(bird.size * 0.3, 0);
+    ctx.rotate(-wingAngle);
+    ctx.fillStyle = wingGradient;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, bird.size * 0.5, bird.size * 0.3, -Math.PI / 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // 头部
+    ctx.fillStyle = '#FFB6C1';
+    ctx.beginPath();
+    ctx.arc(bird.size * 0.6, -bird.size * 0.1, bird.size * 0.35, 0, Math.PI * 2);
     ctx.fill();
 
-    // 装饰环
-    ctx.strokeStyle = '#404040';
-    ctx.lineWidth = 2;
-    for (let i = 1; i <= 3; i++) {
-        ctx.beginPath();
-        ctx.ellipse(0, 0, bird.size * 0.7 * (i/3), (bird.size/3) * 0.7 * (i/3), 0, 0, Math.PI * 2);
-        ctx.stroke();
-    }
-
-    // 侧翼
-    ctx.fillStyle = '#A0A0A0';
+    // 眼睛
+    ctx.fillStyle = 'white';
     ctx.beginPath();
-    ctx.moveTo(-bird.size/2, -bird.size/3);
-    ctx.lineTo(-bird.size/2, bird.size/3);
-    ctx.lineTo(-bird.size*0.8, bird.size/2);
-    ctx.lineTo(-bird.size*0.8, -bird.size/2);
+    ctx.arc(bird.size * 0.7, -bird.size * 0.2, bird.size * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 眼球
+    ctx.fillStyle = 'black';
+    ctx.beginPath();
+    ctx.arc(bird.size * 0.75, -bird.size * 0.2, bird.size * 0.06, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 高光
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(bird.size * 0.77, -bird.size * 0.22, bird.size * 0.03, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 嘴巴
+    ctx.fillStyle = '#FFA500';  // 橙色
+    ctx.beginPath();
+    ctx.moveTo(bird.size * 0.9, -bird.size * 0.1);
+    ctx.lineTo(bird.size * 1.1, -bird.size * 0.05);
+    ctx.lineTo(bird.size * 0.9, 0);
     ctx.closePath();
     ctx.fill();
 
-    // 机翼尖端发光
-    const wingTipGlow = ctx.createRadialGradient(
-        bird.size * 0.5, -bird.size * 0.4, 0,
-        bird.size * 0.5, -bird.size * 0.4, bird.size * 0.2
-    );
-    wingTipGlow.addColorStop(0, 'rgba(135, 206, 250, 0.3)');
-    wingTipGlow.addColorStop(1, 'rgba(135, 206, 250, 0)');
-    
-    ctx.fillStyle = wingTipGlow;
+    // 尾巴
+    const tailFeathers = 3;
+    const tailAngle = Math.PI / 6;
+    ctx.fillStyle = '#FFA07A';
+    for (let i = 0; i < tailFeathers; i++) {
+        ctx.save();
+        ctx.translate(-bird.size * 0.7, 0);
+        ctx.rotate((i - 1) * tailAngle / 2);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, bird.size * 0.4, bird.size * 0.15, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // 腿部
+    ctx.strokeStyle = '#FFA07A';
+    ctx.lineWidth = 3;
+    // 左腿
     ctx.beginPath();
-    ctx.arc(bird.size * 0.5, -bird.size * 0.4, bird.size * 0.2, 0, Math.PI * 2);
-    ctx.fill();
-    
+    ctx.moveTo(-bird.size * 0.2, bird.size * 0.4);
+    ctx.lineTo(-bird.size * 0.3, bird.size * 0.6);
+    ctx.stroke();
+    // 右腿
     ctx.beginPath();
-    ctx.arc(bird.size * 0.5, bird.size * 0.4, bird.size * 0.2, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.moveTo(bird.size * 0.1, bird.size * 0.4);
+    ctx.lineTo(0, bird.size * 0.6);
+    ctx.stroke();
 
     ctx.restore();
 
